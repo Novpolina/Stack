@@ -5,23 +5,51 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+
 const stack_element DEFAULT_VALUE= 0xC6E5EDFF20;
 
-ERRORS StackInit(stack * stk, size_t capacity) {
+const stack_element CANARY_VALUE = 0xD1EEEBEDF6E5;
 
-    stk->data       = (stack_element*)malloc(capacity * sizeof(stack_element));
-    stk -> capacity = capacity;
-    stk -> size     = 0;
+const size_t NUM_OF_CANARY = 2;
 
-    for(int i = 0; i < capacity; i++){
-        stk->data[i] = DEFAULT_VALUE;
-    }
+//миша, не хейти конструкторы пжпжпж, мне реально так удобнее структуру создавать, чтоб подсказывало, что следующим элементом писать
+error MakeErr(int name_of_err, char* file, int function, int number_of_line){
 
-    return VSE_ZAYEBIS;
+    error err = {};
+    err.name_of_err = name_of_err;
+    err.file = file;
+    err.function = function;
+    err.number_of_line = number_of_line;
+    return err;
 
 }
 
-ERRORS StackPush(stack* my_stack, stack_element new_element ) {
+error StackInit(stack * my_stack, size_t capacity) {
+
+    error err  = MakeErr(Stack_Check(my_stack, CHECK_NULL_POINTERS), __FILE__, INIT,  __LINE__);
+
+    if(err.name_of_err != VSE_ZAYEBIS){
+
+        return err;
+        
+    }
+
+    my_stack->data       = (stack_element*)malloc(capacity * sizeof(stack_element));
+    my_stack -> capacity = capacity;
+    my_stack -> size     = 0;
+
+
+    for(int i = 0; i < capacity; i++) {
+        my_stack->data[i] = DEFAULT_VALUE;
+    }
+    err = MakeErr(Stack_Check(my_stack, CHECK_ALL), __FILE__, INIT,  __LINE__);
+
+    return err;
+
+}
+
+error StackPush(stack* my_stack, stack_element new_element ) {
+    error err;
 
     if (my_stack->size == my_stack->capacity) {
 
@@ -35,12 +63,15 @@ ERRORS StackPush(stack* my_stack, stack_element new_element ) {
     my_stack -> data[my_stack -> size] = new_element;
 
     my_stack -> size++;
+    err = MakeErr(Stack_Check(my_stack, CHECK_ALL), __FILE__, INIT,  __LINE__);
 
-    return VSE_ZAYEBIS;
+    return err;
 
 }
 
-ERRORS StackPop(stack* my_stack, stack_element* pop_element) {
+error StackPop(stack* my_stack, stack_element* pop_element) {
+
+error err;
 
     if(my_stack -> size - 1 < my_stack -> capacity / 4) {
 
@@ -60,11 +91,13 @@ ERRORS StackPop(stack* my_stack, stack_element* pop_element) {
 
     my_stack->size--;
 
-    return VSE_ZAYEBIS;
+    err = MakeErr(Stack_Check(my_stack, CHECK_ALL), __FILE__, INIT,  __LINE__);
+
+    return err;
 
 }
 
-ERRORS StackDump(stack* my_stack) {
+error StackDump(stack* my_stack) {
 
     printf("\n \n%s \n", "Derzhite vash stack:");
 
@@ -85,8 +118,44 @@ ERRORS StackDump(stack* my_stack) {
 
 }
 
-ERRORS StackDestroy(stack* my_stack) {
+error StackDestroy(stack* my_stack) {
 
     free(my_stack->data);
+
+}
+
+NAMES_OF_ERRORS Stack_Check(stack* my_stack, const int what_to_check){
+
+    switch (what_to_check)
+    {
+    case CHECK_ALL:
+        /* code */
+        break;
+    case CHECK_NULL_POINTERS:
+        if(!my_stack){
+            return NULL_POINTER_OF_STACK;
+
+        }
+        else if(!my_stack->data){
+            return NULL_POINTER_OF_DATA;
+        }
+         
+        break;
+    case CHECK_CAPACITY:
+        /* code */
+        break;
+    case CHECK_CANARY:
+        /* code */
+        break;
+    case CHECK_HASH:
+        /* code */
+        break;
+    
+    default:
+        return WRONG_NAME_OF_CHECK_OPTION;
+        
+    }
+    return VSE_ZAYEBIS;
+
 
 }
