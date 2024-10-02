@@ -31,7 +31,7 @@ error StackInit(stack * my_stack, size_t capacity) {
     if(err.name_of_err != VSE_ZAYEBIS){
 
         return err;
-        
+
     }
 
     my_stack->data       = (stack_element*)malloc(capacity * sizeof(stack_element));
@@ -71,7 +71,15 @@ error StackPush(stack* my_stack, stack_element new_element ) {
 
 error StackPop(stack* my_stack, stack_element* pop_element) {
 
-error err;
+    error err  = MakeErr(Stack_Check(my_stack, CHECK_NULL_POINTERS), __FILE__, INIT,  __LINE__);
+
+    if(err.name_of_err != VSE_ZAYEBIS){
+
+        return err;
+
+    }
+
+
 
     if(my_stack -> size - 1 < my_stack -> capacity / 4) {
 
@@ -97,30 +105,71 @@ error err;
 
 }
 
-error StackDump(stack* my_stack) {
+void StackDump(stack* my_stack, error err) {
 
     printf("\n \n%s \n", "Derzhite vash stack:");
 
-    printf("\t%s\n", "Sam stack:");
 
-    size_t i = 0;
-    for(; i < my_stack->size; i++) {
-        printf("\t\t[%zu]: %lf \n", i, my_stack->data[i]);
+    if(err.name_of_err == NULL_POINTER_OF_STACK){
+        printf("\n \t Pizdez, steka ne suschestvuet \n");
+        printf("\n \t Oshibka v faile %s \n \t \t v funkzii %s \n \t \t na %i stroke ", err.file, err.function, err.number_of_line);
 
     }
-    for(;i < my_stack->capacity; i++) {
+    else{
+        if (err.name_of_err == NULL_POINTER_OF_DATA){
+            printf("\n Pizdez pomenbshe, data ne sushestvuet \n");
+            printf("\n \t Oshibka v faile %s \n \t \t v funkzii %s \n \t \t na %i stroke ", err.file, err.function, err.number_of_line);
+        }
+        else {
+            if(err.name_of_err == WRONG_CANARY){
 
-        printf("\t\t[%zu]: %lf  - POISON\n", i, my_stack->data[i]);
+            }
+            else if(err.name_of_err == WRONG_HASH){
+
+            }
+            else if (err.name_of_err == VSE_ZAYEBIS){
+                size_t i = 0;
+                printf("\t%s\n", "Sam stack:");
+                for(; i < my_stack->size; i++) {
+                    printf("\t\t[%zu]: %lf \n", i, my_stack->data[i]);
+
+                }
+                for(;i < my_stack->capacity; i++) {
+
+                    printf("\t\t[%zu]: %lf  - POISON\n", i, my_stack->data[i]);
+                }
+
+            }
+
+        
+
+        }
+        printf("\t Size: %zu \n", my_stack->size);
+        printf("\t Capacity: %zu \n", my_stack->capacity);
+
+
     }
 
-    printf("\t Size: %zu \n", my_stack->size);
-    printf("\t Capacity: %zu \n", my_stack->capacity);
+
+
 
 }
 
 error StackDestroy(stack* my_stack) {
 
+
+    error err  = MakeErr(Stack_Check(my_stack, CHECK_NULL_POINTERS), __FILE__, INIT,  __LINE__);
+
+    if(err.name_of_err != VSE_ZAYEBIS){
+
+        return err;
+
+    }
+
+
     free(my_stack->data);
+
+    return err;
 
 }
 

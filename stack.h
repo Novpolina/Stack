@@ -16,7 +16,6 @@ struct error{
 enum NAMES_OF_ERRORS{
     VSE_ZAYEBIS,
     NULL_POINTER_OF_STACK,
-    NULL_POINTER_OF_STACK_IN_INIT,
     NULL_POINTER_OF_DATA,
     WRONG_CANARY,
     WRONG_HASH,
@@ -66,7 +65,7 @@ error StackPush(stack* my_stack, stack_element new_element );
 
 error StackPop(stack* my_stack, stack_element* pop_element);
 
-error StackDump(stack* my_stack);
+void StackDump(stack* my_stack);
 
 error StackDestroy(stack* my_stack);
 
