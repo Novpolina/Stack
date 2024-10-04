@@ -1,9 +1,11 @@
 #include <stdio.h>
 
 struct stack{
+    canary_element first_canary_for_stack;
     double* data;
     size_t size;
     size_t capacity;
+    canary_element last_canary_for_stack;
 };
 
 struct error{
@@ -42,7 +44,7 @@ enum WHAT_TO_CHECK{
 };
 
 typedef double stack_element;
-typedef double canary;
+typedef double canary_element;
 
 #define MAKE_ERROR int error = VSE_ZAYEBIS;
 #define STACK_PUSH(my_stack, new_element)           error = StackPush(my_stack, new_element);       \

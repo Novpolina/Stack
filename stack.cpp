@@ -10,6 +10,7 @@ const stack_element DEFAULT_VALUE= 0xC6E5EDFF20;
 
 const stack_element CANARY_VALUE = 0xD1EEEBEDF6E5;
 
+
 const size_t NUM_OF_CANARY = 2;
 
 //миша, не хейти конструкторы пжпжпж, мне реально так удобнее структуру создавать, чтоб подсказывало, что следующим элементом писать
@@ -25,6 +26,8 @@ error MakeErr(int name_of_err, char* file, int function, int number_of_line){
 }
 
 error StackInit(stack * my_stack, size_t capacity) {
+    my_stack->first_canary_for_stack = CANARY_VALUE;
+    my_stack->last_canary_for_stack = CANARY_VALUE;
 
     error err  = MakeErr(Stack_Check(my_stack, CHECK_NULL_POINTERS), __FILE__, INIT,  __LINE__);
 
@@ -34,7 +37,10 @@ error StackInit(stack * my_stack, size_t capacity) {
 
     }
 
-    my_stack->data       = (stack_element*)malloc(capacity * sizeof(stack_element));
+    my_stack->data       = (stack_element*)malloc(capacity * sizeof(stack_element) + NUM_OF_CANARY * sizeof(canary_element));
+    my_stack->data[0] = CANARY_VALUE;
+    my_stack->data[capacity + 1] = CANARY_VALUE;
+    my_stack->data = my_stack->data + sizeof(canary_element);
     my_stack -> capacity = capacity;
     my_stack -> size     = 0;
 
@@ -54,7 +60,10 @@ error StackPush(stack* my_stack, stack_element new_element ) {
     if (my_stack->size == my_stack->capacity) {
 
         my_stack->capacity = my_stack->capacity * 2;
-        my_stack->data     = (stack_element*)realloc(my_stack->data, my_stack->capacity * sizeof(stack_element)); 
+        my_stack->data = my_stack->data - sizeof(canary_element);
+        my_stack->data     = (stack_element*)realloc(my_stack->data, my_stack->capacity * sizeof(stack_element) + NUM_OF_CANARY * sizeof(canary_element)); 
+        my_stack->data = my_stack->data + sizeof(canary_element);
+
     
     } 
     printf(" push: %lf \n", new_element);
@@ -85,16 +94,18 @@ error StackPop(stack* my_stack, stack_element* pop_element) {
 
         my_stack->capacity = my_stack->capacity / 4;
 
-        my_stack->data = (stack_element*)realloc(my_stack->data, my_stack->capacity * sizeof(stack_element));
+        my_stack->data = my_stack->data - sizeof(canary_element);
+        my_stack->data = (stack_element*)realloc(my_stack->data, my_stack->capacity * sizeof(stack_element) + NUM_OF_CANARY * sizeof(canary_element));
+        my_stack->data = my_stack->data + sizeof(canary_element);
 
     }
 
 
     *pop_element =  my_stack->data[my_stack->size - 1];
     printf(" pop: %lf \n ", pop_element);
+
     StackDump(my_stack);
 
-    
     my_stack->data[my_stack->size - 1] = DEFAULT_VALUE;
 
     my_stack->size--;
@@ -121,13 +132,53 @@ void StackDump(stack* my_stack, error err) {
             printf("\n \t Oshibka v faile %s \n \t \t v funkzii %s \n \t \t na %i stroke ", err.file, err.function, err.number_of_line);
         }
         else {
-            if(err.name_of_err == WRONG_CANARY){
+            if(err.name_of_err = WRONG_CANARY){
+
+
+                if(my_stack->first_canary_for_stack != CANARY_VALUE){
+                    printf("Wrong first canary of stack! \n");
+                    printf("First canary: [%lf], shoulb be [%lf].", my_stack->first_canary_for_stack, CANARY_VALUE);
+                }
+                else{
+                    printf("First canary: [%lf].", my_stack->first_canary_for_stack);
+
+                }
+                if(my_stack->last_canary_for_stack != CANARY_VALUE){
+                    printf("Wrong last canary of stack! \n");
+                    printf("Last canary: [%lf], shoulb be [%lf].", my_stack->last_canary_for_stack, CANARY_VALUE);
+                }
+                else{
+                    printf("Last canary: [%lf].", my_stack->last_canary_for_stack);
+
+                }
+                
+
+
+
+                if(*(my_stack->data - sizeof(canary_element)) != CANARY_VALUE){
+                    printf("Wrong first canary of data! \n");
+                    printf("First canary: [%lf], shoulb be [%lf].", (my_stack->data) - sizeof(canary_element), CANARY_VALUE);
+                }
+                else{
+                    printf("First canary: [%lf].", ( my_stack->data) - sizeof(canary_element));
+
+                }
+
+                if(*(my_stack->data + my_stack->capacity * sizeof(stack_element)) != CANARY_VALUE){
+                    printf("Wrong last canary of data! \n");
+                    printf("Last canary: [%lf], shoulb be [%lf].", my_stack->data[my_stack->capacity + 1], CANARY_VALUE);
+                }
+                else{
+                    printf("Last canary: [%lf].", my_stack->data[my_stack->capacity + 1]);
+
+                }
 
             }
-            else if(err.name_of_err == WRONG_HASH){
+            
+            if(err.name_of_err == WRONG_HASH){
 
             }
-            else if (err.name_of_err == VSE_ZAYEBIS){
+            if (err.name_of_err == VSE_ZAYEBIS){
                 size_t i = 0;
                 printf("\t%s\n", "Sam stack:");
                 for(; i < my_stack->size; i++) {
@@ -140,9 +191,6 @@ void StackDump(stack* my_stack, error err) {
                 }
 
             }
-
-        
-
         }
         printf("\t Size: %zu \n", my_stack->size);
         printf("\t Capacity: %zu \n", my_stack->capacity);
@@ -194,7 +242,13 @@ NAMES_OF_ERRORS Stack_Check(stack* my_stack, const int what_to_check){
         /* code */
         break;
     case CHECK_CANARY:
-        /* code */
+        if(my_stack->first_canary_for_stack != CANARY_VALUE ||
+            my_stack->last_canary_for_stack != CANARY_VALUE ||
+            *(my_stack->data - sizeof(canary_element)) != CANARY_VALUE ||
+            *(my_stack->data + my_stack->capacity * sizeof(stack_element)) != CANARY_VALUE){
+            return WRONG_CANARY;
+        }
+
         break;
     case CHECK_HASH:
         /* code */
