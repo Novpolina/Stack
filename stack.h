@@ -1,8 +1,10 @@
 #include <stdio.h>
+typedef double stack_element;
+typedef double canary_element;
 
 struct stack{
     canary_element first_canary_for_stack;
-    double* data;
+    stack_element* data;
     size_t size;
     size_t capacity;
     canary_element last_canary_for_stack;
@@ -46,7 +48,6 @@ enum WHAT_TO_CHECK{
 typedef double stack_element;
 typedef double canary_element;
 
-#define MAKE_ERROR int error = VSE_ZAYEBIS;
 #define STACK_PUSH(my_stack, new_element)           error = StackPush(my_stack, new_element);       \
                                                         if(error != VSE_ZAYEBIS){                   \
                                                             ErrorPrint(error);                      \
@@ -67,10 +68,13 @@ error StackPush(stack* my_stack, stack_element new_element );
 
 error StackPop(stack* my_stack, stack_element* pop_element);
 
-void StackDump(stack* my_stack);
+void StackDump(stack* my_stack, error err);
 
 error StackDestroy(stack* my_stack);
 
 void ErrorPrint(error error);
+
+NAMES_OF_ERRORS Stack_Check(stack* my_stack, const int what_to_check);
+error MakeErr(int name_of_err, char* file, int function, int number_of_line);
 
 

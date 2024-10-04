@@ -72,7 +72,9 @@ error StackPush(stack* my_stack, stack_element new_element ) {
     my_stack -> data[my_stack -> size] = new_element;
 
     my_stack -> size++;
+    
     err = MakeErr(Stack_Check(my_stack, CHECK_ALL), __FILE__, INIT,  __LINE__);
+    StackDump(my_stack, err);
 
     return err;
 
@@ -104,13 +106,13 @@ error StackPop(stack* my_stack, stack_element* pop_element) {
     *pop_element =  my_stack->data[my_stack->size - 1];
     printf(" pop: %lf \n ", pop_element);
 
-    StackDump(my_stack);
 
     my_stack->data[my_stack->size - 1] = DEFAULT_VALUE;
 
     my_stack->size--;
 
     err = MakeErr(Stack_Check(my_stack, CHECK_ALL), __FILE__, INIT,  __LINE__);
+    StackDump(my_stack, err);
 
     return err;
 
@@ -226,7 +228,21 @@ NAMES_OF_ERRORS Stack_Check(stack* my_stack, const int what_to_check){
     switch (what_to_check)
     {
     case CHECK_ALL:
-        /* code */
+         if(!my_stack){
+            return NULL_POINTER_OF_STACK;
+
+        }
+        else if(!my_stack->data){
+            return NULL_POINTER_OF_DATA;
+        }
+
+        else if(my_stack->first_canary_for_stack != CANARY_VALUE ||
+            my_stack->last_canary_for_stack != CANARY_VALUE ||
+            *(my_stack->data - sizeof(canary_element)) != CANARY_VALUE ||
+            *(my_stack->data + my_stack->capacity * sizeof(stack_element)) != CANARY_VALUE){
+            return WRONG_CANARY;
+        }
+
         break;
     case CHECK_NULL_POINTERS:
         if(!my_stack){
@@ -262,3 +278,4 @@ NAMES_OF_ERRORS Stack_Check(stack* my_stack, const int what_to_check){
 
 
 }
+
