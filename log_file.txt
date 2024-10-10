@@ -1,14 +1,18 @@
 
 
 
- Dump called from function main in file main.cpp, in line 19. 
-Main function: File: main.cpp, function main, line 18. 
+ Dump called from function main in file main.cpp, in line 18. 
+Main function: File: main.cpp, function main, line 17. 
 
 Derzhite vash stack: 
 First canary of stack: [66585665.000000].
  Last canary of stack: [66585665.000000].
 First canary of data: [66585665.000000].
 Last canary of data: [66585665.000000].
+
+
+Right hash of data!!
+Right hash of stack!!
 	Sam stack: 
 
 		[0]: 5.000000 

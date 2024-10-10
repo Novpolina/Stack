@@ -202,6 +202,19 @@ void StackDump(stack* my_stack, Errors err ON_DEBUG(, char* file, char * functio
             
             if(err == WRONG_HASH_OF_DATA){
 
+                fprintf(log_file, "\n\nWrong hash of data !!!!\n");
+
+
+            }
+            else{
+                fprintf(log_file, "\n\nRight hash of data!!\n");
+            }
+            if(err == WRONG_HASH_OF_STACK){
+                fprintf(log_file, "Wrong hash of stack !!!!\n");
+
+            }
+            else{
+                fprintf(log_file, "Right hash of stack!!\n");
             }
             if (err == VSE_ZAYEBIS){
                 size_t i = 0;
