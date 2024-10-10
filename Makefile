@@ -8,3 +8,6 @@ obj/main.o: main.cpp
 
 obj/stack.o: stack.cpp
 	g++ -c stack.cpp $(cxx_flags)
+
+clean:
+	rm *.o stk

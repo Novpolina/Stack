@@ -1,0 +1,19 @@
+
+
+
+ Dump called from function main in file main.cpp, in line 19. 
+Main function: File: main.cpp, function main, line 18. 
+
+Derzhite vash stack: 
+First canary of stack: [66585665.000000].
+ Last canary of stack: [66585665.000000].
+First canary of data: [66585665.000000].
+Last canary of data: [66585665.000000].
+	Sam stack: 
+
+		[0]: 5.000000 
+		[1]: 20.000000 
+		[2]: 20.000000 
+		[3]: 597696.000000  - POISON
+	 Size: 3 
+	 Capacity: 4 

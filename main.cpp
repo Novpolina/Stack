@@ -5,20 +5,18 @@
 int main()
 {
     stack my_stack = {};
-    error err = MakeErr(VSE_ZAYEBIS, 0, 0, 0);
+    Errors err = VSE_ZAYEBIS;
+    stack_element element = 0;
+    CHECK_STACK_(StackInit, &my_stack, 1);
+    CHECK_STACK_(StackPush, &my_stack, 5);
+    CHECK_STACK_(StackPush, &my_stack, 20);
+    CHECK_STACK_(StackPush, &my_stack, 20);
+    STACK_DUMP(&my_stack, err);
 
-    StackInit(&my_stack, 20);
-    StackDump(&my_stack, err);
-    StackPush(&my_stack, 20);
-    StackPush(&my_stack, 5);
-    StackPush(&my_stack, 3);
-    stack_element num = 0;
-    StackPop(&my_stack, &num);
-    StackDump(&my_stack, err);
+    CHECK_STACK_(StackPush, &my_stack, 5);
+    CHECK_STACK_(StackPop, &my_stack, &element);
+    STACK_DUMP(&my_stack, err);
+
     StackDestroy(&my_stack);
-
-
-
-
     return 0;
 }
